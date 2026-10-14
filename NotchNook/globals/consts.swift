@@ -23,5 +23,3 @@ let globalAppsRecommentations: [AppRecommendation] = [
         url: URL(string: "https://winston.cafe")!
     )
 ]
-
-let pubKey = "-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAoACCWKAILQ3ljmdgSPOV\n9qu2Si7qzFKVUHLrieaBjuqAZU8Ytuwq5PhXcJBq2s75yE2ijVU4s74SoiswklwD\n1WUEv5LSfDGkUwVKQouAirZJTzgyZqLrz7xwWevQT6zxHdYSyBxNJtyQYicfnMTZ\nIzfX8pYuFPCeX2j6bLw1OkJ56GeALnQOh5FUd76o2VRgwMC1q1Bgiia4cZYbdu9a\nSF1hVYX1BAsatSQpaAkKyuXh4lrXiK6UFEt4OLSFSohbbV/1boG9j3CPgNUOMulw\nAoeRgc81iFey0CE6bLLP1tXKmU0Hfo5xKus7/QgsrSNslqWNr3pKV/H8cE1Atvtf\npQIDAQAB\n-----END PUBLIC KEY-----\n"

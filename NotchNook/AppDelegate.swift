@@ -43,7 +43,6 @@ import Defaults
         _ = PowerMonitor.shared
         _ = VolumeMonitor.shared
         _ = CurrentWallpaperManager.shared
-        _ = LicenseManager.shared
         _ = BluetoothManager.shared
         _ = FullscreenMonitor.shared
 
@@ -58,10 +57,6 @@ import Defaults
         windowsManager = WindowsManager.shared
 
 //        ValueTransformer.setValueTransformer(NSAttributedStringTransformer(), forName: .nsAttributedString)
-        
-        #if SETAPP_BUILD
-        LicenseManager.shared.checkLicense()  // ensure that the license is considered registered
-        #endif
 
         NSApp.setActivationPolicy(.accessory)
         setupMenu()

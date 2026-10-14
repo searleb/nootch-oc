@@ -9,7 +9,6 @@ import SwiftUI
 
 extension NotchView.ShapeModifier {
     func dropEntered(info: NSDraggingInfo) {
-        if state.trialOver { return }
         withAnimation(NotchView.intenseAnimation) {
             notchNook.mode = .dragging
         }

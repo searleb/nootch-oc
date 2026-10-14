@@ -14,6 +14,5 @@ extension Settings.PaneIdentifier {
     static let tray = Self("tray")
     static let dropArea = Self("dropArea")
     static let liveActivities = Self("liveActivities")
-    static let license = Self("license")
     static let about = Self("about")
 }

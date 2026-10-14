@@ -29,7 +29,6 @@ struct TopBarView: View {
         ActiveLiveActivitiesManager.shared.activeLiveActivities
     }
     @Environment(\.notchSize) private var notchSize
-    @Environment(\.trialOver) private var trialOver
     @Environment(\.notchNook) private var notchNook
     @Environment(\.liveActivitiesSettings) private var liveActivitiesSettings
     @Environment(\.generalSettings) private var generalSettings
@@ -48,7 +47,7 @@ struct TopBarView: View {
     var body: some View {
         let height = getHeight(notchSize.height)
         let mode = notchNook.mode
-        let shouldShowContent = !isHidden && !trialOver && (mode != .closed || !isDisabledDueToFullscreen)
+        let shouldShowContent = !isHidden && (mode != .closed || !isDisabledDueToFullscreen)
         
         if !shouldHide {
             VStack(spacing: 0) {

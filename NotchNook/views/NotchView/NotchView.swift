@@ -21,8 +21,6 @@ struct NotchView: View {
     @Environment(\.notchNook) internal var notchNook
     @Environment(\.generalSettings) internal var generalSettings
     @Default(.intro) internal var intro
-    @Default(.license) internal var license
-    @Default(.trialInitialTime) internal var trialInitialTime
     @Environment(\.showIndicator) var showIndicator
     
     private var isNonNotch: Bool {
@@ -46,10 +44,6 @@ struct NotchView: View {
     
     private var shouldShowIndicator: Bool {
         notchNook.indicator != nil && NSScreen.main == screen
-    }
-    
-    private var shouldShowTopBar: Bool {
-        (license != nil || (!viewModel.trialOver && trialInitialTime != nil))
     }
     
     private var isNonNotchAndDisabled: Bool {
@@ -99,32 +93,26 @@ struct NotchView: View {
                             }
                         }
                     case .standardContent:
-                        if shouldShowTopBar || (notchNook.mode == .closed && !generalSettings.transparentHandle) {
-                            TopBarView(
-                                panGestureCounter: viewModel.panGestureCounter,
-                                scaleX: actualScaleX,
-                                scaleY: actualScaleY,
-                                panPadding: viewModel.panPadding,
-                                isHidden: notchNook.hidden,
-                                isDisabledDueToFullscreen: isDisabledDueToFullScreen
-                            )
-                            .opacity(notchNook.indicator == nil ? 1 : 0)
-                        }
-                        
+                        TopBarView(
+                            panGestureCounter: viewModel.panGestureCounter,
+                            scaleX: actualScaleX,
+                            scaleY: actualScaleY,
+                            panPadding: viewModel.panPadding,
+                            isHidden: notchNook.hidden,
+                            isDisabledDueToFullscreen: isDisabledDueToFullScreen
+                        )
+                        .opacity(notchNook.indicator == nil ? 1 : 0)
+
                         Group {
-                            if license == nil && (trialInitialTime == nil || viewModel.trialOver) && notchNook.mode != .closed {
-                                LicenseStateView()
-                            } else {
-                                switch notchNook.mode {
-                                    case .closed:
-                                        EmptyView()
-                                    case .dragging:
-                                        DropArea(targetsCoords: $viewModel.targetsCoords, availableActions: viewModel.availableActions, hoveredDropTargetID: viewModel.hoveredDropTargetID)
-                                    case .nook:
-                                        NookView()
-                                    case .tray:
-                                        TrayView(hovered: false, full: true)
-                                }
+                            switch notchNook.mode {
+                                case .closed:
+                                    EmptyView()
+                                case .dragging:
+                                    DropArea(targetsCoords: $viewModel.targetsCoords, availableActions: viewModel.availableActions, hoveredDropTargetID: viewModel.hoveredDropTargetID)
+                                case .nook:
+                                    NookView()
+                                case .tray:
+                                    TrayView(hovered: false, full: true)
                             }
                         }
                         .transition(NotchView.defaultTransition)

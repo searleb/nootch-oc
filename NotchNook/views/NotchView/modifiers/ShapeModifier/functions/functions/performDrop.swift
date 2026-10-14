@@ -11,8 +11,6 @@ import SwiftUI
 extension NotchView.ShapeModifier {
     
     func performDrop(info: NSDraggingInfo) -> Bool {
-        if state.trialOver { return false }
-        
         let isTray = state.hoveredDropTargetID == TrayView.id
         let targetedPipeline = allPipelines.first(where: { $0.id == state.hoveredDropTargetID })
         let fileManager = FileManager.default

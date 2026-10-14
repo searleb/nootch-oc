@@ -87,9 +87,9 @@ Xcode resolves every Swift package on first open. Select the `NotchNook` scheme 
 | Variant | How | Notes |
 |---|---|---|
 | **Standalone** | Default `Debug` / `Release` | Uses [Sparkle](https://sparkle-project.org) for auto-updates |
-| **Setapp** | `SETAPP_BUILD` compilation condition | No Sparkle; uses Setapp licensing |
+| **Setapp** | `SETAPP_BUILD` compilation condition | No Sparkle |
 
-Code that touches updates, licensing, or the About screen needs to compile under **both** variants (`#if !SETAPP_BUILD`).
+Code that touches updates or the About screen needs to compile under **both** variants (`#if !SETAPP_BUILD`).
 
 Release tooling (signing, notarization, appcast) lives in [`scripts/`](scripts/README.md). You'll need your own Developer ID certificate.
 

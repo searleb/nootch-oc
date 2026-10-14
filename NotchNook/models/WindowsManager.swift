@@ -47,7 +47,6 @@ class WindowsManager {
             NookSettingsViewController(),
             TraySettingsViewController(),
             DropAreaSettingsViewController(),
-            LicenseSettingsViewController(),
         ]
         
 #if !SETAPP_BUILD

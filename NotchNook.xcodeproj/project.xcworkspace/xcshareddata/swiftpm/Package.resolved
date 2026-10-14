@@ -56,15 +56,6 @@
       }
     },
     {
-      "identity" : "jwt-kit",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/vapor/jwt-kit.git",
-      "state" : {
-        "revision" : "e4c067020c87cc4dad6b916ad5159b10c3b1b2a5",
-        "version" : "5.0.0-beta.4"
-      }
-    },
-    {
       "identity" : "launchatlogin-modern",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/sindresorhus/LaunchAtLogin-Modern",
