@@ -25,7 +25,6 @@ extension NotchView {
         @Environment(\.showChangelog) internal var showChangelog
         @Environment(\.closeNotch) internal var closeNotch
         @Environment(\.isEditingText) internal var isEditingText
-        @Environment(\.checkTrialOver) internal var checkTrialOver
         @Environment(\.notchSize) internal var notchSize
         
         @State private var isAnimating: Bool = false
@@ -35,9 +34,8 @@ extension NotchView {
                 .onAppear {
 #if !SETAPP_BUILD
                     checkForUpdates()
-                    checkTrialOver()
 #endif
-                    resetTrialAndHandleChangelog()
+                    handleChangelog()
                     insertUpdateLAIfOldVersion()
                     startBriVolKeyListener()
                 }

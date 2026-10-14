@@ -13,8 +13,6 @@ struct IntroView: View {
     @State private var tutorial = false
     @Environment(\.notchSize) private var notchSize
     @Default(.intro) private var intro
-    @Default(.trialInitialTime) private var trialInitialTime
-    @Default(.license) private var license
     var body: some View {
         ZStack {
             Group {

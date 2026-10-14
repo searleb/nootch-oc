@@ -39,7 +39,6 @@ class NotchViewModel {
     var notchState: NotchState = .standardContent
     var scaleDown: Double = 0
     var animatingBack = false
-    var trialOver = false
     var showIntro = false
     
     // MARK: - Computed properties

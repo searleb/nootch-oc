@@ -22,8 +22,6 @@ extension NotchView {
         @Environment(\.timerWidgetSettings) internal var timerWidgetSettings
         
         @Default(.nookSettings) internal var nookSettings
-        @Default(.trialInitialTime) internal var trialInitialTime
-        @Default(.license) internal var license
         @Namespace internal var ns
         @Environment(\.generalSettings) private var generalSettings
         @Environment(\.notchNook) internal var notchNook
@@ -50,11 +48,9 @@ extension NotchView {
             content
                 .environment(\.hideNotch, hideNotch)
                 .environment(\.closeNotch, closeNotch)
-                .environment(\.checkTrialOver, checkTrialOver)
                 .environment(\.openNotch, openNotch)
                 .environment(\.nookWidgetsWidth, nookWidgetsWidth)
                 .environment(\.namespace, ns)
-                .environment(\.trialOver, state.trialOver)
                 .transformEnvironment(\.notchSize) { if $0.width != 0 { $0.width += generalSettings.notchWidthFineTune } }
                 .transformEnvironment(\.notchSize) { if $0.height != 0 { $0.height += generalSettings.notchHeightFineTune } }
                 .preferredColorScheme(.dark)

@@ -1,5 +1,5 @@
 //
-//  resetTrialAndHandleChangelog.swift
+//  handleChangelog.swift
 //  NotchNook
 //
 //  Created by Igor Marcossi on 24/06/24.
@@ -9,13 +9,10 @@ import Foundation
 import SwiftUI
 
 extension NotchView.SideEffectsModifier {
-    func resetTrialAndHandleChangelog() {
+    func handleChangelog() {
         let currentVersionNumber = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "0"
-        
+
         if shouldShowChangelog(lastVersionNumber: lastVersionNumber, currentVersionNumber: currentVersionNumber) {
-#if !SETAPP_BUILD
-            resetTrial()
-#endif
             showChangelog()
             lastVersionNumber = currentVersionNumber
         }

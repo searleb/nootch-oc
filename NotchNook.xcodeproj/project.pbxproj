@@ -14,7 +14,6 @@
 		36ACEEFC2E0B2BDD003EC274 /* MediaRemoteAdapter in Embed Frameworks */ = {isa = PBXBuildFile; productRef = 36ACEEFA2E0B2BDD003EC274 /* MediaRemoteAdapter */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		3A00275E2C90263C002A089D /* Settings in Frameworks */ = {isa = PBXBuildFile; productRef = 3A00275D2C90263C002A089D /* Settings */; };
 		3A1DC6172C6DAE6500D97B5E /* CodeEditor in Frameworks */ = {isa = PBXBuildFile; productRef = 3A1DC6162C6DAE6500D97B5E /* CodeEditor */; };
-		3A7C05DB2C59C65900435D99 /* JWTKit in Frameworks */ = {isa = PBXBuildFile; productRef = 3A7C05DA2C59C65900435D99 /* JWTKit */; };
 		3A801E0B2C154EA30076560D /* SmoothGradient in Frameworks */ = {isa = PBXBuildFile; productRef = 3A801E0A2C154EA30076560D /* SmoothGradient */; };
 		3A8AA2CF2C313B6300D727DA /* RichTextKit in Frameworks */ = {isa = PBXBuildFile; productRef = 3A8AA2CE2C313B6300D727DA /* RichTextKit */; };
 		3A9E6BF82C3A9C3F009948F5 /* DynamicColor in Frameworks */ = {isa = PBXBuildFile; productRef = 3A9E6BF72C3A9C3F009948F5 /* DynamicColor */; };
@@ -79,7 +78,6 @@
 				EC7A0FAD2C0FE7800063E78E /* Algorithms in Frameworks */,
 				ECCEFE6F2C64453600F3385C /* FluidGradient in Frameworks */,
 				EC47FC8E2C0B801A00591811 /* Lottie in Frameworks */,
-				3A7C05DB2C59C65900435D99 /* JWTKit in Frameworks */,
 				EC2DD1F72C03F10F001FD54E /* LaunchAtLogin in Frameworks */,
 				365E68D42DA5A2C5006BDF7D /* Defaults in Frameworks */,
 				3A00275E2C90263C002A089D /* Settings in Frameworks */,
@@ -176,7 +174,6 @@
 				3A801E0A2C154EA30076560D /* SmoothGradient */,
 				3A8AA2CE2C313B6300D727DA /* RichTextKit */,
 				3A9E6BF72C3A9C3F009948F5 /* DynamicColor */,
-				3A7C05DA2C59C65900435D99 /* JWTKit */,
 				ECCEFE6E2C64453600F3385C /* FluidGradient */,
 				3A1DC6162C6DAE6500D97B5E /* CodeEditor */,
 				3A9FEA162C6DCBF500AE6515 /* Setapp */,
@@ -230,7 +227,6 @@
 				3A801E092C154EA30076560D /* XCRemoteSwiftPackageReference "SmoothGradient" */,
 				3A8AA2CD2C313B6300D727DA /* XCRemoteSwiftPackageReference "RichTextKit" */,
 				3A9E6BF62C3A9C3F009948F5 /* XCRemoteSwiftPackageReference "DynamicColor" */,
-				3A7C05D92C59C65900435D99 /* XCRemoteSwiftPackageReference "jwt-kit" */,
 				ECCEFE6D2C64453600F3385C /* XCRemoteSwiftPackageReference "FluidGradient" */,
 				3A1DC6152C6DAE6500D97B5E /* XCRemoteSwiftPackageReference "CodeEditor" */,
 				3A9FEA152C6DCBF500AE6515 /* XCRemoteSwiftPackageReference "Setapp-framework" */,
@@ -846,14 +842,6 @@
 				kind = branch;
 			};
 		};
-		3A7C05D92C59C65900435D99 /* XCRemoteSwiftPackageReference "jwt-kit" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/vapor/jwt-kit.git";
-			requirement = {
-				kind = exactVersion;
-				version = "5.0.0-beta.4";
-			};
-		};
 		3A801E092C154EA30076560D /* XCRemoteSwiftPackageReference "SmoothGradient" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/raymondjavaxx/SmoothGradient.git";
@@ -961,11 +949,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 3A1DC6152C6DAE6500D97B5E /* XCRemoteSwiftPackageReference "CodeEditor" */;
 			productName = CodeEditor;
-		};
-		3A7C05DA2C59C65900435D99 /* JWTKit */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 3A7C05D92C59C65900435D99 /* XCRemoteSwiftPackageReference "jwt-kit" */;
-			productName = JWTKit;
 		};
 		3A801E0A2C154EA30076560D /* SmoothGradient */ = {
 			isa = XCSwiftPackageProductDependency;

@@ -28,8 +28,10 @@ the **Xcode MCP** (`mcp__xcode__*`). The build is the **arbiter of correctness**
 ### Build variants
 - Two configs (`Debug`, `Release`) and a **Setapp** build path gated by the
   `SETAPP_BUILD` compilation condition. `#if !SETAPP_BUILD` wraps all **Sparkle**
-  (auto-update) code; the Setapp build has no Sparkle and uses Setapp licensing instead.
-  When touching update/license/about code, keep BOTH branches compiling.
+  (auto-update) code; the Setapp build has no Sparkle.
+  When touching update/about code, keep BOTH branches compiling.
+- There is **no trial or license/registration system** — this fork is open source and runs
+  unrestricted. Don't reintroduce license gating.
 - Deployment target is **macOS 14.4+**. Guard newer APIs with `#available` / `if #available`
   and provide a fallback (the timer glass pill is the canonical example: native macOS 26
   `CABackdropLayer` path → Metal lens → hairline capsule).
@@ -47,7 +49,7 @@ when you need raw grep.
 ### Process / window model
 - `main.swift` → `AppDelegate` (accessory app, no Dock icon). `applicationDidFinishLaunching`
   eagerly instantiates the singleton managers (`CalendarManager`, `MediaManager`,
-  `BluetoothManager`, `FullscreenMonitor`, `LicenseManager`, …) and seeds SwiftData notes
+  `BluetoothManager`, `FullscreenMonitor`, …) and seeds SwiftData notes
   **once** before any window exists, then builds `WindowsManager.shared`.
 - `WindowsManager` (singleton) owns one borderless, transparent, click-through-capable
   window **per screen** (`DisplayKit`), rebuilt on `didChangeScreenParametersNotification`

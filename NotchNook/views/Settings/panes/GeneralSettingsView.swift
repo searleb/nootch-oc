@@ -122,7 +122,7 @@ struct GeneralSettingsView: View {
                     .optionDescription(contentMaxWidth)
                 
                 Button("Reset all settings") { resetDefaults() }
-                Text("This will reset everything except your license.")
+                Text("This will reset all settings to their defaults.")
                     .optionDescription(contentMaxWidth)
                 
                 

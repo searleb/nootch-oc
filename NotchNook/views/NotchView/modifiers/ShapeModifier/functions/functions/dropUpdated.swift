@@ -9,7 +9,6 @@ import SwiftUI
 
 extension NotchView.ShapeModifier {
     func dropUpdated(info: NSDraggingInfo, mousePos: CGPoint) {
-        if state.trialOver { return }
         state.droppingCoords = mousePos
     }
 }

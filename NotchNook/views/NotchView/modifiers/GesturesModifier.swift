@@ -24,11 +24,9 @@ extension NotchView {
         @Environment(\.openNotch) internal var openNotch
         @Environment(\.closeNotch) internal var closeNotch
         @Environment(\.tray) internal var tray
-        @Environment(\.checkTrialOver) internal var checkTrialOver
         @Environment(\.nookSettings) private var nookSettings
         @Environment(\.generalSettings) private var generalSettings
-        @Default(.license) internal var license
-        
+
         func body(content: Content) -> some View {
             content
                 .allowsHitTesting(!disableNotchNook)
@@ -53,8 +51,6 @@ extension NotchView {
         }
         
         func onHover(_ hovering: Bool) {
-            if license == nil || state.trialOver { checkTrialOver() }
-            
             if hovering {
                 // Claim key status unconditionally on hover-enter so the panel is already
                 // key by the time a click arrives — prevents first-click being absorbed.

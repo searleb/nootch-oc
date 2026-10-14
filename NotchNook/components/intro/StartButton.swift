@@ -7,22 +7,10 @@
 
 import SwiftUI
 import Defaults
-import SwiftDate
 
 struct StartButton: View {
     @Default(.intro) private var intro
-    @Default(.license) private var license
-    @Default(.trialInitialTime) private var trialInitialTime
     var body: some View {
-        if license != nil {
-            Button("Start") { intro = false }
-        } else {
-            Button("Start \(Int(LicenseManager.trialDurationInHours))h Trial", systemImage: "clock") {
-                intro = false
-                if trialInitialTime == nil {
-                    trialInitialTime = Date().timeIntervalSince1970
-                }
-            }
-        }
+        Button("Start") { intro = false }
     }
 }
