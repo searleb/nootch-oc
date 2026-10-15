@@ -52,4 +52,30 @@ enum ClaudeFixtures {
         return encode(["type": "assistant", "timestamp": stamp(date), "sessionId": session, "cwd": cwd,
                        "isSidechain": sidechain, "requestId": requestID, "message": message])
     }
+
+    static func makeTemporaryDirectory() -> URL {
+        let url = URL(fileURLWithPath: NSTemporaryDirectory(), isDirectory: true)
+            .appending(path: "claude-tests-\(UUID().uuidString)", directoryHint: .isDirectory)
+        try! FileManager.default.createDirectory(at: url, withIntermediateDirectories: true)
+        return url
+    }
+
+    static func writeAccountJSON(org: String, to url: URL) {
+        try! FileManager.default.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
+        let json = #"{"oauthAccount":{"organizationUuid":"\#(org)","emailAddress":"x@example.com"}}"#
+        try! Data(json.utf8).write(to: url)
+    }
+
+    /// Appends lines, each followed by a newline, creating folders and the file as needed.
+    static func append(_ lines: [Data], to url: URL) {
+        try! FileManager.default.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
+        if !FileManager.default.fileExists(atPath: url.path) { FileManager.default.createFile(atPath: url.path, contents: nil) }
+        let handle = try! FileHandle(forWritingTo: url)
+        defer { try? handle.close() }
+        try! handle.seekToEnd()
+        for line in lines {
+            try! handle.write(contentsOf: line)
+            try! handle.write(contentsOf: Data("\n".utf8))
+        }
+    }
 }
