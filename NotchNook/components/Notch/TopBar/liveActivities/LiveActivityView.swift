@@ -123,6 +123,22 @@ struct LiveActivityView: View {
                                     .lineLimit(1)
                                     .truncationMode(.tail)
                         }
+
+                    case .claudeWorking:
+                        switch side {
+                            case .left:
+                                ClaudeWorkingIconView()
+                            case .right:
+                                ClaudeElapsedView()
+                        }
+
+                    case .claudeFinished:
+                        switch side {
+                            case .left:
+                                ClaudeFinishedIconView()
+                            case .right:
+                                ClaudeFinishedDurationView()
+                        }
                 }
             }
         }

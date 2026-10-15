@@ -13,14 +13,18 @@ class ActiveLiveActivitiesManager {
     
     static let shared = ActiveLiveActivitiesManager()
     
+    /// Activities that surface regardless of the user's toggle list or the master switch.
+    static let alwaysOn: Set<LiveActivity> = [.timerExpired, .claudeFinished]
+
+    static func visible(_ active: Set<LiveActivity>, liveActivitiesEnabled: Bool, enabled: Set<LiveActivity>) -> Set<LiveActivity> {
+        guard liveActivitiesEnabled else { return active.intersection(alwaysOn) }
+        return active.filter { alwaysOn.contains($0) || enabled.contains($0) }
+    }
+
     var activeLiveActivities: Set<LiveActivity> {
         get {
-            let isCacheEnabled = liveActivitiesSettingsCache.enabled
-            let liveActivitiesFromCache = _activeLiveActivities.filter {
-                // .timerExpired is always-on — it surfaces regardless of the user toggle list
-                $0 == .timerExpired || liveActivitiesSettingsCache.enabledLiveActivities.contains($0)
-            }
-            return isCacheEnabled ? liveActivitiesFromCache : _activeLiveActivities.filter { $0 == .timerExpired }
+            Self.visible(_activeLiveActivities, liveActivitiesEnabled: liveActivitiesSettingsCache.enabled,
+                         enabled: liveActivitiesSettingsCache.enabledLiveActivities)
         }
         set {
             Task { @MainActor in

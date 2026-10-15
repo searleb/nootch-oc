@@ -67,6 +67,10 @@ struct MockTopBar: View {
                             .foregroundStyle(.yellow)
                     case .timerExpired:
                         EmptyView()
+                    case .claudeWorking:
+                        ClaudeWorkingIconView()
+                    case .claudeFinished:
+                        EmptyView()
                 }
             }
             .frame(width: TopBarView.liveActionWidth)
@@ -97,6 +101,12 @@ struct MockTopBar: View {
                     case .batteryVisualizer:
                         TimeLeftView(batteryStatus: PowerMonitor.shared.status)
                     case .timerExpired:
+                        EmptyView()
+                    case .claudeWorking:
+                        Text(verbatim: "2:14")
+                            .font(.system(size: 11, weight: .medium).monospacedDigit())
+                            .foregroundStyle(ClaudeStyle.orange)
+                    case .claudeFinished:
                         EmptyView()
                 }
             }

@@ -15,8 +15,8 @@ import EventKit
 class LiveActivitySelectionManager {
     static let shared = LiveActivitySelectionManager()
     
-    // .timerExpired is first — it's a user-initiated alert that should always cut to the front
-    private var activitiesByPriority: [LiveActivity] = [.timerExpired, .bluetoothDevice, .batteryVisualizer, .tray, .calendar, .updateAvailable, .media]
+    // .timerExpired and .claudeFinished are alerts: they cut to the front.
+    private var activitiesByPriority: [LiveActivity] = [.timerExpired, .claudeFinished, .bluetoothDevice, .batteryVisualizer, .tray, .calendar, .claudeWorking, .updateAvailable, .media]
     
     func selectActivity(from activeActivities: Set<LiveActivity>, batteryStatus: PowerMonitor.BatteryStatus? = nil, calendarSettings: CalendarLiveActivitySettings) -> LiveActivity? {
         guard !activeActivities.isEmpty else { return nil }

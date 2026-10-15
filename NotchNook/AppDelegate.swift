@@ -45,6 +45,7 @@ import Defaults
         _ = CurrentWallpaperManager.shared
         _ = BluetoothManager.shared
         _ = FullscreenMonitor.shared
+        _ = ClaudeUsageStore.shared
 
         // Seed/repair the default notes ONCE at launch, before any window (and
         // thus any NotesWidgetView) is built. This used to live in the widget's
