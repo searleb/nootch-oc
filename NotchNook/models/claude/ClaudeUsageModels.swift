@@ -10,6 +10,13 @@ struct ClaudeTokens: Equatable {
 
     var total: Int { input + cacheWrite + cacheRead + output }
 
+    /// Share of everything the model read that came from the prompt cache; nil
+    /// when nothing was read. Output is not part of it.
+    var cacheHitRate: Double? {
+        let read = input + cacheWrite + cacheRead
+        return read > 0 ? Double(cacheRead) / Double(read) : nil
+    }
+
     static func += (lhs: inout ClaudeTokens, rhs: ClaudeTokens) {
         lhs.input += rhs.input
         lhs.cacheWrite += rhs.cacheWrite

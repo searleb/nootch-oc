@@ -66,29 +66,29 @@ struct ClaudeUsageWidgetView: View {
                 .font(.system(size: 24))
                 .foregroundStyle(Color.white.opacity(0.28))
             Text("No Claude activity yet")
-                .font(.system(size: 12))
+                .font(.system(size: 13))
                 .foregroundStyle(Color.white.opacity(0.45))
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 }
 
-private struct ClaudeProfileBlock: View {
+struct ClaudeProfileBlock: View {
     let profile: ClaudeProfileSnapshot
 
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
             HStack(spacing: 5) {
                 Image(systemName: "sparkle")
-                    .font(.system(size: 10, weight: .semibold))
+                    .font(.system(size: 11, weight: .semibold))
                     .foregroundStyle(ClaudeStyle.orange)
                 Text(verbatim: profile.label)
-                    .font(.system(size: 11, weight: .semibold))
+                    .font(.system(size: 12, weight: .semibold))
                     .foregroundStyle(.white.opacity(0.9))
                 Spacer(minLength: 4)
                 status
             }
-            limits
+            meters
             usage
         }
     }
@@ -97,39 +97,40 @@ private struct ClaudeProfileBlock: View {
         if let session = profile.live.min(by: { $0.started < $1.started }) {
             TimelineView(.periodic(from: .now, by: 1)) { context in
                 Text(verbatim: "\(session.project) · \(ClaudeFormat.clock(context.date.timeIntervalSince(session.started)))")
-                    .font(.system(size: 10, weight: .medium).monospacedDigit())
+                    .font(.system(size: 11, weight: .medium).monospacedDigit())
                     .foregroundStyle(ClaudeStyle.orange)
                     .lineLimit(1)
                     .truncationMode(.middle)
             }
         } else {
             Text("Idle")
-                .font(.system(size: 10))
+                .font(.system(size: 11))
                 .foregroundStyle(.white.opacity(0.4))
         }
     }
 
-    @ViewBuilder private var limits: some View {
-        if profile.limits.isEmpty {
-            Text("Limits unavailable")
-                .font(.system(size: 10))
-                .foregroundStyle(.white.opacity(0.35))
-        } else {
+    /// Plan limits when the account has them. An account with none (an enterprise
+    /// plan) shows how much of what Claude read came from the prompt cache instead.
+    @ViewBuilder private var meters: some View {
+        if !profile.limits.isEmpty {
             HStack(alignment: .top, spacing: 10) {
                 ForEach(profile.limits) { ClaudeLimitMeter(window: $0) }
             }
+        } else if let rate = profile.today.tokens.cacheHitRate {
+            ClaudeMeter(title: "Cache", fraction: rate, valueText: "\(Int((rate * 100).rounded()))%",
+                        color: ClaudeStyle.cacheGreen, caption: "of input read from cache")
         }
     }
 
     @ViewBuilder private var usage: some View {
         if profile.today.requests == 0 {
             Text("No usage today")
-                .font(.system(size: 10))
+                .font(.system(size: 11))
                 .foregroundStyle(.white.opacity(0.35))
         } else {
             let today = profile.today
             Text(verbatim: "\(ClaudeFormat.tokens(today.tokens.total)) tok · \(ClaudeFormat.cost(today.cost, approximate: today.hasUnpriced)) today")
-                .font(.system(size: 10).monospacedDigit())
+                .font(.system(size: 11).monospacedDigit())
                 .foregroundStyle(.white.opacity(0.6))
                 .lineLimit(1)
                 .minimumScaleFactor(0.8)
@@ -137,20 +138,23 @@ private struct ClaudeProfileBlock: View {
     }
 }
 
-private struct ClaudeLimitMeter: View {
-    let window: ClaudeLimitWindow
-
-    private var level: ClaudeUsageLevel { .level(forUsedFraction: window.usedFraction) }
+/// A labelled bar: a title and value above, the bar, and an optional line below.
+private struct ClaudeMeter: View {
+    let title: LocalizedStringKey
+    let fraction: Double
+    let valueText: String
+    let color: Color
+    var caption: String?
 
     var body: some View {
         VStack(alignment: .leading, spacing: 2) {
             HStack(spacing: 3) {
-                Text(window.kind == .session ? "5h" : "Week")
-                    .font(.system(size: 9, weight: .semibold))
+                Text(title)
+                    .font(.system(size: 10, weight: .semibold))
                     .foregroundStyle(.white.opacity(0.6))
                 Spacer(minLength: 0)
-                Text(verbatim: "\(Int(window.usedPercent.rounded()))%")
-                    .font(.system(size: 9, weight: .medium).monospacedDigit())
+                Text(verbatim: valueText)
+                    .font(.system(size: 10, weight: .medium).monospacedDigit())
                     .foregroundStyle(.white.opacity(0.85))
             }
             Capsule()
@@ -159,20 +163,34 @@ private struct ClaudeLimitMeter: View {
                 .overlay(alignment: .leading) {
                     GeometryReader { proxy in
                         Capsule()
-                            .fill(level.color)
-                            .frame(width: max(4, proxy.size.width * window.usedFraction))
+                            .fill(color)
+                            .frame(width: max(4, proxy.size.width * min(1, max(0, fraction))))
                     }
                 }
-            if let resets = window.resetsAt {
-                TimelineView(.periodic(from: .now, by: 30)) { context in
-                    Text(verbatim: "resets \(window.isEstimate ? "~" : "")\(ClaudeFormat.resetIn(resets, now: context.date))")
-                        .font(.system(size: 9))
-                        .foregroundStyle(.white.opacity(0.4))
-                        .lineLimit(1)
-                }
+            if let caption {
+                Text(verbatim: caption)
+                    .font(.system(size: 10))
+                    .foregroundStyle(.white.opacity(0.4))
+                    .lineLimit(1)
             }
         }
         .frame(maxWidth: .infinity)
+    }
+}
+
+private struct ClaudeLimitMeter: View {
+    let window: ClaudeLimitWindow
+
+    var body: some View {
+        TimelineView(.periodic(from: .now, by: 30)) { context in
+            ClaudeMeter(title: window.kind == .session ? "5h" : "Week",
+                        fraction: window.usedFraction,
+                        valueText: "\(Int(window.usedPercent.rounded()))%",
+                        color: ClaudeUsageLevel.level(forUsedFraction: window.usedFraction).color,
+                        caption: window.resetsAt.map {
+                            "resets \(window.isEstimate ? "~" : "")\(ClaudeFormat.resetIn($0, now: context.date))"
+                        })
+        }
     }
 }
 

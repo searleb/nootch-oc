@@ -8,6 +8,13 @@ enum ClaudeFormat {
         return h > 0 ? String(format: "%d:%02d:%02d", h, m, s) : String(format: "%d:%02d", m, s)
     }
 
+    /// The clock for the 35pt notch wing: `m:ss` under an hour, then `1h02m`, never wider than five characters.
+    static func compactClock(_ interval: TimeInterval) -> String {
+        let total = max(0, Int(interval))
+        let h = total / 3600, m = (total % 3600) / 60, s = total % 60
+        return h > 0 ? String(format: "%dh%02dm", h, m) : String(format: "%d:%02d", m, s)
+    }
+
     /// `45s`, `2m 14s`, `1h 05m`, for a finished span.
     static func duration(_ interval: TimeInterval) -> String {
         let total = max(0, Int(interval.rounded()))

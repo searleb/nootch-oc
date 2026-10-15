@@ -3,6 +3,8 @@ import SwiftUI
 enum ClaudeStyle {
     /// Claude's brand orange.
     static let orange = Color(red: 0.85, green: 0.47, blue: 0.34)
+    /// Cache hits are the good kind of usage, so they read green, not like a limit.
+    static let cacheGreen = Color(red: 0.42, green: 0.74, blue: 0.52)
 }
 
 /// One frame of the mark at `time` seconds: rays chasing around a ring (see `ClaudeBurst`).
@@ -58,14 +60,27 @@ struct ClaudeElapsedView: View {
     var body: some View {
         TimelineView(.periodic(from: .now, by: 1)) { context in
             if let session = store.workingSession {
-                Text(verbatim: ClaudeFormat.clock(context.date.timeIntervalSince(session.started)))
-                    .font(.system(size: 11, weight: .medium).monospacedDigit())
-                    .foregroundStyle(ClaudeStyle.orange)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.6)
+                ClaudeClockText(elapsed: context.date.timeIntervalSince(session.started))
             }
         }
         .frame(maxWidth: .infinity)
+    }
+}
+
+/// The running clock. The wing is 35pt wide and a four-digit clock (`10:57`)
+/// fills it edge to edge, so the text keeps a gutter and scales down to fit
+/// rather than hugging the notch's rounded corner.
+struct ClaudeClockText: View {
+    var elapsed: TimeInterval
+
+    var body: some View {
+        Text(verbatim: ClaudeFormat.compactClock(elapsed))
+            .font(.system(size: 11, weight: .medium).monospacedDigit())
+            .foregroundStyle(ClaudeStyle.orange)
+            .lineLimit(1)
+            .minimumScaleFactor(0.6)
+            .padding(.horizontal, 5)
+            .frame(maxWidth: .infinity)
     }
 }
 
@@ -107,11 +122,7 @@ struct ClaudeFinishedDurationView: View {
     }
     return VStack(alignment: .leading, spacing: 16) {
         HStack(spacing: 40) {   // working: clock left, animated mark right
-            wing {
-                Text(verbatim: "2:14")
-                    .font(.system(size: 11, weight: .medium).monospacedDigit())
-                    .foregroundStyle(ClaudeStyle.orange)
-            }
+            wing { ClaudeClockText(elapsed: 134) }
             wing { ClaudeWorkingIconView() }
         }
         HStack(spacing: 40) {   // finished: duration left, still check right

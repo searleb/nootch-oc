@@ -9,6 +9,15 @@ final class ClaudeFormatTests: XCTestCase {
         XCTAssertEqual(ClaudeFormat.clock(-5), "0:00")
     }
 
+    func testCompactClockFitsAThirtyFivePointWing() {
+        XCTAssertEqual(ClaudeFormat.compactClock(42), "0:42")
+        XCTAssertEqual(ClaudeFormat.compactClock(657), "10:57")
+        XCTAssertEqual(ClaudeFormat.compactClock(3_599), "59:59")
+        XCTAssertEqual(ClaudeFormat.compactClock(3_725), "1h02m", "an hour or more drops seconds instead of overflowing")
+        XCTAssertEqual(ClaudeFormat.compactClock(36_000), "10h00m")
+        XCTAssertEqual(ClaudeFormat.compactClock(-1), "0:00")
+    }
+
     func testDuration() {
         XCTAssertEqual(ClaudeFormat.duration(45), "45s")
         XCTAssertEqual(ClaudeFormat.duration(134), "2m 14s")
@@ -55,5 +64,17 @@ final class ClaudeFormatTests: XCTestCase {
         let a = ClaudeTokens(input: 5, cacheWrite: 1, cacheRead: 9, output: 2)
         let b = ClaudeTokens(input: 3, cacheWrite: 4, cacheRead: 9, output: 20)
         XCTAssertEqual(a.merged(with: b), ClaudeTokens(input: 5, cacheWrite: 4, cacheRead: 9, output: 20))
+    }
+
+    func testCacheHitRateIsCacheReadsOverEverythingTheModelRead() {
+        let tokens = ClaudeTokens(input: 50, cacheWrite: 50, cacheRead: 900, output: 5_000)
+        XCTAssertEqual(tokens.cacheHitRate!, 0.9, accuracy: 1e-9, "output tokens are not part of what was read")
+        XCTAssertEqual(ClaudeTokens(input: 0, cacheWrite: 0, cacheRead: 300, output: 1).cacheHitRate, 1)
+        XCTAssertEqual(ClaudeTokens(input: 10, cacheWrite: 0, cacheRead: 0, output: 1).cacheHitRate, 0)
+    }
+
+    func testCacheHitRateIsNilWithNothingRead() {
+        XCTAssertNil(ClaudeTokens().cacheHitRate)
+        XCTAssertNil(ClaudeTokens(input: 0, cacheWrite: 0, cacheRead: 0, output: 99).cacheHitRate)
     }
 }
