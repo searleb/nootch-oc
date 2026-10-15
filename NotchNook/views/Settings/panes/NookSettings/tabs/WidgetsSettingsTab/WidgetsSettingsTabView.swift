@@ -37,6 +37,7 @@ struct WidgetsSettingsTabView: View {
                     case .notes: NotesWidgetSettingsView()
                     case .todoList: TodoListWidgetSettingsView()
                     case .timer: TimerWidgetSettingsView()
+                    case .claudeUsage: ClaudeUsageWidgetSettingsView()
                     default: BlankView().frame(maxWidth: .infinity, maxHeight: .infinity)
                 }
             }
