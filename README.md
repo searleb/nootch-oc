@@ -1,35 +1,5 @@
 <div align="center">
 
-<a href="https://www.patreon.com/loficafe">
-  <img src=".github/assets/patreon-banner.svg" alt="PATRON ME FOR GOD'S SAKE — i deserve some freaking pennies" width="100%">
-</a>
-
-<br>
-
-<a href="https://www.patreon.com/loficafe">
-  <img src="https://img.shields.io/badge/%F0%9F%92%B8%20BECOME%20A%20PATRON-NOW-ff424d?style=for-the-badge&logo=patreon&logoColor=white&labelColor=1a0033" alt="Become a patron" height="42">
-</a>
-
-<br><br>
-
-### 🌈 𝗣 𝗔 𝗧 𝗥 𝗢 𝗡 　 𝗠 𝗘 　 𝗙 𝗢 𝗥 　 𝗚 𝗢 𝗗 ' 𝗦 　 𝗦 𝗔 𝗞 𝗘 🌈
-
-**🟥🟧🟨🟩🟦🟪 ⟪ 𝒾 𝒹𝑒𝓈𝑒𝓇𝓋𝑒 𝓈𝑜𝓂𝑒 𝒻𝓇𝑒𝒶𝓀𝒾𝓃𝑔 𝓅𝑒𝓃𝓃𝒾𝑒𝓈 ⟫ 🟪🟦🟩🟨🟧🟥**
-
-`░▒▓█` &nbsp; ⓣⓗⓘⓢ ⓐⓟⓟ ⓘⓢ ⓕⓡⓔⓔ · ⓣⓗⓔ ⓓⓔⓥ ⓘⓢ ⓝⓞⓣ &nbsp; `█▓▒░`
-
-🪙 💸 🪙 💰 🪙 💸 🪙 💰 🪙 💸 🪙 💰 🪙 💸 🪙
-
-**[→ 𝚙𝚊𝚝𝚛𝚎𝚘𝚗.𝚌𝚘𝚖/𝚕𝚘𝚏𝚒𝚌𝚊𝚏𝚎 ←](https://www.patreon.com/loficafe)**
-
-<sub>every single penny keeps the notch alive. no pressure. (lots of pressure.)</sub>
-
-<br>
-
----
-
-<br>
-
 # NotchNook
 
 **Your MacBook notch is a black rectangle doing nothing. NotchNook gives it a job.**
@@ -37,7 +7,6 @@
 [![License: Noncommercial, source-only](https://img.shields.io/badge/license-noncommercial%20%C2%B7%20source--only-a64dff?style=flat-square)](LICENSE.md)
 ![macOS](https://img.shields.io/badge/macOS-14.4%2B-000000?style=flat-square&logo=apple&logoColor=white)
 ![Swift](https://img.shields.io/badge/Swift-SwiftUI%20%2B%20AppKit-F05138?style=flat-square&logo=swift&logoColor=white)
-[![Patreon](https://img.shields.io/badge/Patreon-loficafe-ff424d?style=flat-square&logo=patreon&logoColor=white)](https://www.patreon.com/loficafe)
 
 </div>
 
@@ -132,16 +101,6 @@ Want a ready-to-run app instead? Get **[Nootch](https://lo.fi/nootch)**.
 Commercial licensing: contact [lo.cafe](https://lo.cafe).
 
 <div align="center">
-
-<br>
-
----
-
-### 🙏 Made it this far? You know what to do.
-
-<a href="https://www.patreon.com/loficafe">
-  <img src="https://img.shields.io/badge/%E2%98%95%20FUND%20THE%20NOTCH-patreon.com%2Floficafe-ff424d?style=for-the-badge&logo=patreon&logoColor=white&labelColor=05001a" alt="Fund the notch" height="36">
-</a>
 
 <sub>Made with ☕ and questionable amounts of private API by <a href="https://lo.cafe">lo.cafe</a></sub>
 
