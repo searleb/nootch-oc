@@ -135,9 +135,9 @@ struct LiveActivityView: View {
                     case .claudeFinished:
                         switch side {
                             case .left:
-                                ClaudeFinishedIconView()
-                            case .right:
                                 ClaudeFinishedDurationView()
+                            case .right:
+                                ClaudeFinishedIconView()
                         }
                 }
             }

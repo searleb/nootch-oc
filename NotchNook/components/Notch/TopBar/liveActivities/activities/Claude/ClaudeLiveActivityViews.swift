@@ -69,7 +69,8 @@ struct ClaudeElapsedView: View {
     }
 }
 
-/// Left wing when a turn finishes.
+/// Right wing when a turn finishes: a still check, never text. The right wing
+/// only animates while Claude is working.
 struct ClaudeFinishedIconView: View {
     @State private var store = ClaudeUsageStore.shared
 
@@ -82,15 +83,16 @@ struct ClaudeFinishedIconView: View {
     }
 }
 
-/// Right wing when a turn finishes: how long it took. The wing is only 35pt
-/// wide, so the profile and project live in the accessibility label and the widget.
+/// Left wing when a turn finishes: how long it took, in fixed-width digits so the
+/// text does not shift as it appears. The wing is only 35pt wide, so the profile
+/// and project live in the accessibility label and the widget.
 struct ClaudeFinishedDurationView: View {
     @State private var store = ClaudeUsageStore.shared
 
     var body: some View {
         if let alert = store.currentFinished {
             Text(verbatim: ClaudeFormat.duration(alert.duration))
-                .font(.system(size: 11, weight: .semibold))
+                .font(.system(size: 11, weight: .semibold).monospacedDigit())
                 .foregroundStyle(.white.opacity(0.85))
                 .lineLimit(1)
                 .minimumScaleFactor(0.55)
@@ -112,17 +114,17 @@ struct ClaudeFinishedDurationView: View {
             }
             wing { ClaudeWorkingIconView() }
         }
-        HStack(spacing: 40) {   // finished: check left, duration right
+        HStack(spacing: 40) {   // finished: duration left, still check right
+            wing {
+                Text(verbatim: "2m 14s")
+                    .font(.system(size: 11, weight: .semibold).monospacedDigit())
+                    .foregroundStyle(.white.opacity(0.85))
+                    .minimumScaleFactor(0.55)
+            }
             wing {
                 Image(systemName: "checkmark.circle.fill")
                     .font(.system(size: 13))
                     .foregroundStyle(ClaudeStyle.orange)
-            }
-            wing {
-                Text(verbatim: "2m 14s")
-                    .font(.system(size: 11, weight: .semibold))
-                    .foregroundStyle(.white.opacity(0.85))
-                    .minimumScaleFactor(0.55)
             }
         }
     }
