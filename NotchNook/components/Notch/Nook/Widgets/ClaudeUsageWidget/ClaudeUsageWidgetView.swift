@@ -112,7 +112,8 @@ struct ClaudeProfileBlock: View {
     @ViewBuilder private var status: some View {
         if let session = profile.live.min(by: { $0.started < $1.started }) {
             TimelineView(.periodic(from: .now, by: 1)) { context in
-                Text(verbatim: "\(session.project) · \(ClaudeFormat.clock(context.date.timeIntervalSince(session.started)))")
+                let clock = ClaudeFormat.clock(context.date.timeIntervalSince(session.started))
+                Text(verbatim: session.project.isEmpty ? clock : "\(session.project) · \(clock)")
                     .font(.system(size: 11, weight: .medium).monospacedDigit())
                     .foregroundStyle(ClaudeStyle.orange)
                     .lineLimit(1)

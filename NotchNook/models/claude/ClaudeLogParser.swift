@@ -10,6 +10,10 @@ enum ClaudeLogEvent: Equatable {
     case turnActive(Date?)
     case turnEnded(Date, completed: Bool)
     case usage(ClaudeUsageRecord)
+    /// A subagent is working: any of its lines other than its final reply. Never a parent turn.
+    case sidechainActive(Date?)
+    /// A subagent gave its final reply.
+    case sidechainEnded(Date)
 }
 
 /// Per-file context carried from line to line.
@@ -31,9 +35,12 @@ enum ClaudeLogParser {
     static func parse(_ line: Data, state: inout ClaudeLogState, now: Date) -> [ClaudeLogEvent] {
         if contains(line, #""type":"assistant""#) { return assistant(line, state: &state, now: now) }
         guard contains(line, #""type":"user""#) else { return [] }
-        // A subagent's prompts and tool output never touch the parent turn,
-        // and its tool output can be large: skip without decoding.
-        if contains(line, #""isSidechain":true"#) { return [] }
+        // A subagent's prompts and tool output never touch the parent turn, and its
+        // tool output can be large: report that it is working without decoding the line.
+        if contains(line, #""isSidechain":true"#) {
+            if state.entrypoint.isEmpty, let entrypoint = quickString(line, key: "entrypoint") { state.entrypoint = entrypoint }
+            return [.sidechainActive(quickTimestamp(line))]
+        }
         if state.turnOpen { return userInsideTurn(line, state: &state, now: now) }
         guard let json = object(line), json["type"] as? String == "user",
               json["isMeta"] as? Bool != true, isPrompt(json) else { return [] }
@@ -76,7 +83,13 @@ enum ClaudeLogParser {
             events.append(.usage(record(usage, json: json, message: message, model: model, date: date, state: state)))
         }
         // A subagent ending is not the end of the turn it serves.
-        guard json["isSidechain"] as? Bool != true else { return events }
+        if json["isSidechain"] as? Bool == true {
+            switch message["stop_reason"] as? String {
+            case "end_turn", "stop_sequence", "max_tokens", "refusal": events.append(.sidechainEnded(date))
+            default: events.append(.sidechainActive(date))
+            }
+            return events
+        }
         switch message["stop_reason"] as? String {
         case "end_turn", "stop_sequence", "max_tokens", "refusal":
             // An error written in place of a reply, like a spent limit, stops
@@ -178,6 +191,20 @@ enum ClaudeLogParser {
     static func timestamp(_ value: Any?) -> Date? {
         guard let text = value as? String else { return nil }
         return fractional.date(from: text) ?? plain.date(from: text)
+    }
+
+    /// A short string value for `key` without decoding the line, for lines too big to parse.
+    static func quickString(_ line: Data, key: String) -> String? {
+        let needle = Array("\"\(key)\":\"".utf8)
+        return line.withUnsafeBytes { bytes -> String? in
+            guard let base = bytes.baseAddress,
+                  let found = memmem(base, bytes.count, needle, needle.count) else { return nil }
+            let start = base.distance(to: UnsafeRawPointer(found)) + needle.count
+            let limit = min(bytes.count, start + 48)
+            guard start < limit, let quote = memchr(base + start, 0x22, limit - start) else { return nil }
+            let end = base.distance(to: UnsafeRawPointer(quote))
+            return end > start ? String(decoding: UnsafeRawBufferPointer(rebasing: bytes[start..<end]), as: UTF8.self) : nil
+        }
     }
 
     /// The line's own time without decoding it, for lines too big to parse.

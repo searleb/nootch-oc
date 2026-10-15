@@ -40,17 +40,38 @@ final class ClaudeUsageEngine {
         var finished: [ClaudeFinishedTurn] = []
 
         for profile in profiles {
-            for file in logFiles(in: profile, modifiedSince: dayStart) {
+            // Session logs first: a subagent's lines refresh the parent turn, which has to exist by then.
+            for file in logFiles(in: profile, modifiedSince: dayStart).sorted(by: Self.sessionLogsFirst) {
                 var cursor = cursors[file.url.path] ?? ClaudeLogCursor()
                 guard file.size != cursor.offset else { continue }
+                // `<session>/subagents/agent-<id>.jsonl`: the session comes from the path, as the
+                // subagent's first lines do not name it.
+                let isSubagentLog = file.url.path.contains("/subagents/")
+                let pathSession = isSubagentLog ? file.url.deletingLastPathComponent().deletingLastPathComponent().lastPathComponent : nil
+                let agentName = file.url.deletingPathExtension().lastPathComponent
                 for line in ClaudeLogTailer.readNewLines(at: file.url, cursor: &cursor) {
                     for event in ClaudeLogParser.parse(line, state: &cursor.state, now: now) {
                         let account = cursor.state.entrypoint == Self.desktopEntrypoint ? desktop : profile
-                        if case .usage(let record) = event { ledgers[account.id, default: ClaudeUsageLedger()].add(record) }
-                        let key = account.id + "|" + cursor.state.session
-                        if let done = tracker.apply(event, key: key, profileID: account.id, project: cursor.state.project,
-                                                    busy: !cursor.state.runningCommands.isEmpty) {
-                            finished.append(done)
+                        let parentKey = account.id + "|" + (pathSession ?? cursor.state.session)
+                        let project = cursor.state.project
+                        switch event {
+                        case .usage(let record):
+                            ledgers[account.id, default: ClaudeUsageLedger()].add(record)
+                        case .sidechainActive(let date):
+                            let at = date ?? now
+                            // A subagent working is its parent turn working, however quiet the parent's own log.
+                            _ = tracker.apply(.turnActive(at), key: parentKey, profileID: account.id, project: project, busy: false)
+                            _ = tracker.apply(.turnBegan(at), key: parentKey + "|" + agentName, profileID: account.id, project: project, busy: false)
+                        case .sidechainEnded(let date):
+                            _ = tracker.apply(.turnActive(date), key: parentKey, profileID: account.id, project: project, busy: false)
+                            // A subagent finishing is never announced; its parent's turn is.
+                            _ = tracker.apply(.turnEnded(date, completed: true), key: parentKey + "|" + agentName,
+                                              profileID: account.id, project: project, busy: false)
+                        default:
+                            if let done = tracker.apply(event, key: parentKey, profileID: account.id, project: project,
+                                                        busy: !cursor.state.runningCommands.isEmpty) {
+                                finished.append(done)
+                            }
                         }
                     }
                 }
@@ -67,6 +88,10 @@ final class ClaudeUsageEngine {
             finished = []
         }
         return Output(profiles: snapshots(now: now, dayStart: dayStart, desktop: desktop), finished: finished)
+    }
+
+    private static func sessionLogsFirst(_ a: (url: URL, size: UInt64), _ b: (url: URL, size: UInt64)) -> Bool {
+        !a.url.path.contains("/subagents/") && b.url.path.contains("/subagents/")
     }
 
     // MARK: Discovery

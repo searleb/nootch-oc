@@ -52,8 +52,8 @@ struct ClaudeTurnTracker {
             guard let turn = open.removeValue(forKey: key) else { return nil }
             return ClaudeFinishedTurn(profileID: turn.profileID, project: turn.project, started: turn.started,
                                       duration: max(0, date.timeIntervalSince(turn.started)), completed: completed)
-        case .usage:
-            break
+        case .usage, .sidechainActive, .sidechainEnded:
+            break   // the engine turns subagent activity into turns of their own
         }
         return nil
     }

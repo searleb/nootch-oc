@@ -78,10 +78,11 @@ final class ClaudeLogParserTests: XCTestCase {
     func testSidechainNeverOpensOrClosesButStillCountsUsage() {
         var state = ClaudeLogState()
         var events = run([ClaudeFixtures.prompt(at: t0, sidechain: true)], state: &state)
-        XCTAssertEqual(events, [])
+        XCTAssertEqual(events, [.sidechainActive(t0)], "a subagent line is subagent activity, never a parent turn")
         events = run([ClaudeFixtures.assistant(at: at(1), stop: "end_turn", sidechain: true)], state: &state)
-        XCTAssertEqual(events.count, 1)
-        guard case .usage = events[0] else { return XCTFail("expected usage only") }
+        XCTAssertEqual(events.count, 2)
+        guard case .usage = events[0] else { return XCTFail("expected usage first") }
+        XCTAssertEqual(events[1], .sidechainEnded(at(1)))
         XCTAssertFalse(state.turnOpen)
         // A sidechain end must not close a real open turn either.
         _ = run([ClaudeFixtures.prompt(at: at(2))], state: &state)
@@ -143,6 +144,25 @@ final class ClaudeLogParserTests: XCTestCase {
     func testSubagentLinesStillCarryTheEntrypointForTheirUsage() {
         var state = ClaudeLogState()
         _ = run([ClaudeFixtures.assistant(at: t0, stop: "end_turn", sidechain: true, entrypoint: "claude-desktop")], state: &state)
+        XCTAssertEqual(state.entrypoint, "claude-desktop")
+    }
+
+
+    func testSubagentLinesReportItsActivityAndEndWithoutTouchingTheParentTurn() {
+        var state = ClaudeLogState()
+        _ = run([ClaudeFixtures.prompt(at: t0), ClaudeFixtures.assistant(at: at(1), stop: "tool_use", bashIDs: ["b1"])], state: &state)
+        XCTAssertEqual(run([ClaudeFixtures.prompt(at: at(2), sidechain: true)], state: &state), [.sidechainActive(at(2))])
+        let working = run([ClaudeFixtures.assistant(at: at(3), stop: "tool_use", messageID: "s1", sidechain: true)], state: &state)
+        XCTAssertEqual(working.last, .sidechainActive(at(3)))
+        let done = run([ClaudeFixtures.assistant(at: at(4), stop: "end_turn", messageID: "s2", sidechain: true)], state: &state)
+        XCTAssertEqual(done.last, .sidechainEnded(at(4)))
+        XCTAssertTrue(state.turnOpen, "the parent turn is still open")
+        XCTAssertEqual(state.runningCommands, ["b1"], "and its running command is untouched")
+    }
+
+    func testSubagentPromptAdoptsTheEntrypointWithoutDecodingTheLine() {
+        var state = ClaudeLogState()
+        _ = run([ClaudeFixtures.prompt(at: t0, sidechain: true, entrypoint: "claude-desktop")], state: &state)
         XCTAssertEqual(state.entrypoint, "claude-desktop")
     }
 }

@@ -205,4 +205,49 @@ final class ClaudeUsageEngineTests: XCTestCase {
         ClaudeFixtures.append([ClaudeFixtures.prompt(at: ago(30)), ClaudeFixtures.assistant(at: ago(20), stop: "end_turn")], to: log(work))
         XCTAssertEqual(ClaudeUsageEngine(home: home).poll(now: now).profiles.map(\.label), ["Work"])
     }
+
+
+    // MARK: Subagents
+
+    private var subagentLog: URL { log(".claude/projects/-Users-x-Sites-anywhere/s1/subagents/agent-1.jsonl") }
+
+    func testRunningSubagentKeepsItsQuietParentTurnAlivePastTheIdleLimit() {
+        makeProjects(".claude")
+        let engine = ClaudeUsageEngine(home: home)
+        _ = engine.poll(now: ago(900))
+        // The parent went quiet 13 minutes ago, waiting on a subagent that is still writing.
+        ClaudeFixtures.append([ClaudeFixtures.prompt(at: ago(840)), ClaudeFixtures.assistant(at: ago(780), stop: "tool_use")], to: log(work))
+        ClaudeFixtures.append([ClaudeFixtures.prompt(at: ago(770), sidechain: true),
+                               ClaudeFixtures.assistant(at: ago(5), stop: "tool_use", messageID: "sub", sidechain: true)], to: subagentLog)
+        let output = engine.poll(now: now)
+        XCTAssertEqual(snapshot(output, "Work")?.live.count, 2, "the parent turn and the subagent are both working")
+        XCTAssertEqual(output.finished, [])
+    }
+
+    func testBackgroundSubagentShowsAsWorkingAfterItsParentTurnEnded() {
+        makeProjects(".claude")
+        let engine = ClaudeUsageEngine(home: home)
+        _ = engine.poll(now: ago(130))
+        // The parent launched it in the background and finished within seconds.
+        ClaudeFixtures.append([ClaudeFixtures.prompt(at: ago(120)), ClaudeFixtures.assistant(at: ago(110), stop: "tool_use"),
+                               ClaudeFixtures.assistant(at: ago(100), stop: "end_turn", messageID: "m2")], to: log(work))
+        ClaudeFixtures.append([ClaudeFixtures.prompt(at: ago(100), sidechain: true),
+                               ClaudeFixtures.assistant(at: ago(5), stop: "tool_use", messageID: "sub", sidechain: true)], to: subagentLog)
+        let working = engine.poll(now: now)
+        XCTAssertEqual(snapshot(working, "Work")?.live.count, 1, "only the subagent is still working")
+        XCTAssertEqual(working.finished.count, 1, "the parent's own turn is announced as before")
+
+        ClaudeFixtures.append([ClaudeFixtures.assistant(at: ago(2), stop: "end_turn", messageID: "sub2", sidechain: true)], to: subagentLog)
+        let done = engine.poll(now: now)
+        XCTAssertEqual(snapshot(done, "Work")?.live, [])
+        XCTAssertEqual(done.finished, [], "a subagent finishing is never announced")
+    }
+
+    func testSubagentFileReadBeforeItsParentFileStillRefreshesTheParent() {
+        // Both files are new in the same poll; the subagent must not be applied first.
+        ClaudeFixtures.append([ClaudeFixtures.prompt(at: ago(840)), ClaudeFixtures.assistant(at: ago(780), stop: "tool_use")], to: log(work))
+        ClaudeFixtures.append([ClaudeFixtures.prompt(at: ago(770), sidechain: true),
+                               ClaudeFixtures.assistant(at: ago(5), stop: "tool_use", messageID: "sub", sidechain: true)], to: subagentLog)
+        XCTAssertEqual(snapshot(ClaudeUsageEngine(home: home).poll(now: now), "Work")?.live.count, 2)
+    }
 }
