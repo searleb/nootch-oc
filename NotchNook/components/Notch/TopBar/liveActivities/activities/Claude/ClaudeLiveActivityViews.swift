@@ -5,19 +5,53 @@ enum ClaudeStyle {
     static let orange = Color(red: 0.85, green: 0.47, blue: 0.34)
 }
 
-/// Left wing while Claude works: a pulsing mark.
-struct ClaudeWorkingIconView: View {
+/// One frame of the mark at `time` seconds: rays chasing around a ring (see `ClaudeBurst`).
+struct ClaudeBurstFrame: View {
+    var time: TimeInterval
+
     var body: some View {
-        Image(systemName: "sparkle")
-            .font(.system(size: 13, weight: .semibold))
-            .foregroundStyle(ClaudeStyle.orange)
-            .symbolEffect(.pulse, options: .repeating)
+        Canvas { graphics, size in
+            let radius = min(size.width, size.height) / 2
+            let center = CGPoint(x: size.width / 2, y: size.height / 2)
+            let turn = ClaudeBurst.rotation(at: time)
+            let inner = radius * 0.2
+            for (index, length) in ClaudeBurst.rayLengths(at: time).enumerated() {
+                let angle = turn + Double(index) * 2 * .pi / Double(ClaudeBurst.rayCount)
+                let outer = inner + (radius - inner) * length
+                var ray = Path()
+                ray.move(to: CGPoint(x: center.x + cos(angle) * inner, y: center.y + sin(angle) * inner))
+                ray.addLine(to: CGPoint(x: center.x + cos(angle) * outer, y: center.y + sin(angle) * outer))
+                graphics.stroke(ray, with: .color(ClaudeStyle.orange),
+                                style: StrokeStyle(lineWidth: radius * 0.24, lineCap: .round))
+            }
+        }
+    }
+}
+
+/// The animated mark, redrawn about 30 times a second.
+struct ClaudeBurstView: View {
+    var animated = true
+
+    var body: some View {
+        TimelineView(.animation(minimumInterval: 1.0 / 30, paused: !animated)) { context in
+            ClaudeBurstFrame(time: animated ? context.date.timeIntervalSinceReferenceDate : 0)
+        }
+    }
+}
+
+/// Right wing while Claude works: the animated mark, still under Reduce Motion.
+struct ClaudeWorkingIconView: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    var body: some View {
+        ClaudeBurstView(animated: !reduceMotion)
+            .frame(width: 16, height: 16)
             .frame(maxWidth: .infinity)
             .accessibilityLabel("Claude is working")
     }
 }
 
-/// Right wing while Claude works: how long the longest turn has run.
+/// Left wing while Claude works: how long the longest turn has run.
 struct ClaudeElapsedView: View {
     @State private var store = ClaudeUsageStore.shared
 

@@ -2,8 +2,8 @@ import XCTest
 @testable import NotchNook
 
 final class ClaudeLiveActivityTests: XCTestCase {
-    func testOnlyTheWorkingActivityIsUserConfigurable() {
-        XCTAssertTrue(LiveActivity.claudeWorking.isUserConfigurable)
+    func testClaudeActivitiesAreNotUserConfigurable() {
+        XCTAssertFalse(LiveActivity.claudeWorking.isUserConfigurable, "the Claude widget being in the Nook is the opt-in")
         XCTAssertFalse(LiveActivity.claudeFinished.isUserConfigurable)
         XCTAssertFalse(LiveActivity.timerExpired.isUserConfigurable)
     }
@@ -18,9 +18,10 @@ final class ClaudeLiveActivityTests: XCTestCase {
 
     func testAlwaysOnActivitiesSurviveTheMasterSwitchAndTheToggleList() {
         let active: Set<LiveActivity> = [.claudeFinished, .claudeWorking, .media, .timerExpired]
-        XCTAssertEqual(ActiveLiveActivitiesManager.visible(active, liveActivitiesEnabled: false, enabled: [.media, .claudeWorking]),
-                       [.claudeFinished, .timerExpired])
-        XCTAssertEqual(ActiveLiveActivitiesManager.visible(active, liveActivitiesEnabled: true, enabled: [.claudeWorking]),
+        XCTAssertEqual(ActiveLiveActivitiesManager.visible(active, liveActivitiesEnabled: false, enabled: [.media]),
                        [.claudeFinished, .claudeWorking, .timerExpired])
+        // The user's saved toggle list predates Claude and never contains it: it must still beat music.
+        XCTAssertEqual(ActiveLiveActivitiesManager.visible(active, liveActivitiesEnabled: true, enabled: [.media, .calendar, .tray]),
+                       [.claudeFinished, .claudeWorking, .media, .timerExpired])
     }
 }

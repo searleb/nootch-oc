@@ -68,7 +68,9 @@ struct MockTopBar: View {
                     case .timerExpired:
                         EmptyView()
                     case .claudeWorking:
-                        ClaudeWorkingIconView()
+                        Text(verbatim: "2:14")
+                            .font(.system(size: 11, weight: .medium).monospacedDigit())
+                            .foregroundStyle(ClaudeStyle.orange)
                     case .claudeFinished:
                         EmptyView()
                 }
@@ -103,9 +105,7 @@ struct MockTopBar: View {
                     case .timerExpired:
                         EmptyView()
                     case .claudeWorking:
-                        Text(verbatim: "2:14")
-                            .font(.system(size: 11, weight: .medium).monospacedDigit())
-                            .foregroundStyle(ClaudeStyle.orange)
+                        ClaudeWorkingIconView()
                     case .claudeFinished:
                         EmptyView()
                 }

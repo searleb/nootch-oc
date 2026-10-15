@@ -17,7 +17,7 @@ enum LiveActivity: String, Codable, MetaInfo, CaseIterable {
     case batteryVisualizer
     /// Transient — fired by NookTimersStore.expire(). Always surfaces regardless of enabledLiveActivities.
     case timerExpired
-    /// Shown while a Claude turn runs; the person can turn it off like the others.
+    /// Shown while a Claude turn runs. Always surfaces: the Claude widget being in the Nook is the opt-in.
     case claudeWorking
     /// Transient — fired by ClaudeUsageStore when a long turn completes. Always surfaces.
     case claudeFinished
@@ -34,7 +34,7 @@ enum LiveActivity: String, Codable, MetaInfo, CaseIterable {
     
     /// Whether this activity can be toggled by the user in settings.
     var isUserConfigurable: Bool {
-        self != .timerExpired && self != .claudeFinished
+        self != .timerExpired && self != .claudeFinished && self != .claudeWorking
     }
     
     var icon: String {

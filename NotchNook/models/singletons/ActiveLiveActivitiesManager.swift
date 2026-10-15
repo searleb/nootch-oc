@@ -14,7 +14,7 @@ class ActiveLiveActivitiesManager {
     static let shared = ActiveLiveActivitiesManager()
     
     /// Activities that surface regardless of the user's toggle list or the master switch.
-    static let alwaysOn: Set<LiveActivity> = [.timerExpired, .claudeFinished]
+    static let alwaysOn: Set<LiveActivity> = [.timerExpired, .claudeFinished, .claudeWorking]
 
     static func visible(_ active: Set<LiveActivity>, liveActivitiesEnabled: Bool, enabled: Set<LiveActivity>) -> Set<LiveActivity> {
         guard liveActivitiesEnabled else { return active.intersection(alwaysOn) }
