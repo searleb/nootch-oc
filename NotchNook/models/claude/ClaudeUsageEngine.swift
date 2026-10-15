@@ -11,6 +11,10 @@ final class ClaudeUsageEngine {
     }
 
     static let discoveryInterval: TimeInterval = 60
+    /// Sessions from the Claude desktop app's Code tab sign in with the desktop app's
+    /// account, whichever folder they log to; the CLI and editors use the folder's login.
+    private static let desktopEntrypoint = "claude-desktop"
+    private static let desktopAccountID = "claude-desktop"
 
     private let home: URL
     private var profiles: [ClaudeProfile] = []
@@ -32,6 +36,7 @@ final class ClaudeUsageEngine {
         refreshProfiles(now: now)
         refreshPlanHistory()
         let dayStart = Calendar.current.startOfDay(for: now)
+        let desktop = desktopAccount()
         var finished: [ClaudeFinishedTurn] = []
 
         for profile in profiles {
@@ -40,9 +45,10 @@ final class ClaudeUsageEngine {
                 guard file.size != cursor.offset else { continue }
                 for line in ClaudeLogTailer.readNewLines(at: file.url, cursor: &cursor) {
                     for event in ClaudeLogParser.parse(line, state: &cursor.state, now: now) {
-                        if case .usage(let record) = event { ledgers[profile.id, default: ClaudeUsageLedger()].add(record) }
-                        let key = profile.id + "|" + cursor.state.session
-                        if let done = tracker.apply(event, key: key, profileID: profile.id, project: cursor.state.project,
+                        let account = cursor.state.entrypoint == Self.desktopEntrypoint ? desktop : profile
+                        if case .usage(let record) = event { ledgers[account.id, default: ClaudeUsageLedger()].add(record) }
+                        let key = account.id + "|" + cursor.state.session
+                        if let done = tracker.apply(event, key: key, profileID: account.id, project: cursor.state.project,
                                                     busy: !cursor.state.runningCommands.isEmpty) {
                             finished.append(done)
                         }
@@ -60,7 +66,7 @@ final class ClaudeUsageEngine {
             primed = true
             finished = []
         }
-        return Output(profiles: snapshots(now: now, dayStart: dayStart), finished: finished)
+        return Output(profiles: snapshots(now: now, dayStart: dayStart, desktop: desktop), finished: finished)
     }
 
     // MARK: Discovery
@@ -96,11 +102,26 @@ final class ClaudeUsageEngine {
         return files
     }
 
+    /// The account the desktop app is signed in to: the organization its own plan
+    /// history records. It is the folder profile with that organization when there
+    /// is one (the personal account, say), otherwise a profile of its own.
+    private func desktopAccount() -> ClaudeProfile {
+        let organization = planSamples.last?.organization
+        if let organization, let match = profiles.first(where: { $0.organization == organization }) { return match }
+        return ClaudeProfile(id: Self.desktopAccountID, label: "Claude app", roots: [], organization: organization)
+    }
+
     // MARK: Snapshots
 
-    private func snapshots(now: Date, dayStart: Date) -> [ClaudeProfileSnapshot] {
+    private func snapshots(now: Date, dayStart: Date, desktop: ClaudeProfile) -> [ClaudeProfileSnapshot] {
         let open = tracker.openTurns
-        return profiles.map { profile in
+        var accounts = profiles
+        // A profile of its own only once the desktop app has actually been used.
+        if !accounts.contains(where: { $0.id == desktop.id }),
+           ledgers[desktop.id] != nil || open.contains(where: { $0.profileID == desktop.id }) {
+            accounts.append(desktop)
+        }
+        return accounts.map { profile in
             let ledger = ledgers[profile.id] ?? ClaudeUsageLedger()
             let live = open.filter { $0.profileID == profile.id }.map {
                 ClaudeLiveSession(id: $0.key, profileID: profile.id, profileLabel: profile.label, project: $0.project,

@@ -17,9 +17,11 @@ enum ClaudeFixtures {
     }
 
     static func prompt(at date: Date, session: String = "s1", cwd: String = "/Users/x/Sites/anywhere",
-                       text: String = "do the thing", sidechain: Bool = false, meta: Bool = false) -> Data {
+                       text: String = "do the thing", sidechain: Bool = false, meta: Bool = false,
+                       entrypoint: String = "cli") -> Data {
         var object: [String: Any] = ["type": "user", "timestamp": stamp(date), "sessionId": session, "cwd": cwd,
-                                     "isSidechain": sidechain, "message": ["role": "user", "content": text]]
+                                     "isSidechain": sidechain, "entrypoint": entrypoint,
+                                     "message": ["role": "user", "content": text]]
         if meta { object["isMeta"] = true }
         return encode(object)
     }
@@ -41,7 +43,8 @@ enum ClaudeFixtures {
     static func assistant(at date: Date, stop: String?, session: String = "s1", messageID: String = "m1",
                           requestID: String = "r1", model: String = "claude-opus-5-5", input: Int = 10,
                           output: Int = 20, cacheRead: Int = 0, cacheWrite: Int = 0, bashIDs: [String] = [],
-                          sidechain: Bool = false, cwd: String = "/Users/x/Sites/anywhere") -> Data {
+                          sidechain: Bool = false, cwd: String = "/Users/x/Sites/anywhere",
+                          entrypoint: String = "cli") -> Data {
         let content: [[String: Any]] = bashIDs.isEmpty
             ? [["type": "text", "text": "hi"]]
             : bashIDs.map { ["type": "tool_use", "id": $0, "name": "Bash", "input": ["command": "ls"]] }
@@ -50,7 +53,7 @@ enum ClaudeFixtures {
         let message: [String: Any] = ["id": messageID, "role": "assistant", "model": model, "content": content,
                                       "stop_reason": stop as Any? ?? NSNull(), "usage": usage]
         return encode(["type": "assistant", "timestamp": stamp(date), "sessionId": session, "cwd": cwd,
-                       "isSidechain": sidechain, "requestId": requestID, "message": message])
+                       "isSidechain": sidechain, "entrypoint": entrypoint, "requestId": requestID, "message": message])
     }
 
     static func makeTemporaryDirectory() -> URL {

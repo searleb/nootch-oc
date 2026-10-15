@@ -130,4 +130,19 @@ final class ClaudeLogParserTests: XCTestCase {
         XCTAssertEqual(run([Data(#"{"type":"system","x":1}"#.utf8), Data("not json".utf8),
                             Data(#"{"type":"assistant", broken"#.utf8)], state: &state), [])
     }
+
+    func testEntrypointIsAdoptedFromThePromptAndFromAssistantLines() {
+        var state = ClaudeLogState()
+        _ = run([ClaudeFixtures.prompt(at: t0, entrypoint: "claude-desktop")], state: &state)
+        XCTAssertEqual(state.entrypoint, "claude-desktop")
+        var other = ClaudeLogState()
+        _ = run([ClaudeFixtures.assistant(at: t0, stop: "end_turn", entrypoint: "claude-vscode")], state: &other)
+        XCTAssertEqual(other.entrypoint, "claude-vscode")
+    }
+
+    func testSubagentLinesStillCarryTheEntrypointForTheirUsage() {
+        var state = ClaudeLogState()
+        _ = run([ClaudeFixtures.assistant(at: t0, stop: "end_turn", sidechain: true, entrypoint: "claude-desktop")], state: &state)
+        XCTAssertEqual(state.entrypoint, "claude-desktop")
+    }
 }

@@ -16,6 +16,8 @@ enum ClaudeLogEvent: Equatable {
 struct ClaudeLogState: Equatable {
     var session = ""
     var project = ""
+    /// The app that wrote the session: `cli`, `claude-desktop`, `claude-vscode`.
+    var entrypoint = ""
     var turnOpen = false
     /// Bash tool calls still waiting for a result. They run on the Mac, so a
     /// quiet log while one runs does not mean Claude stopped.
@@ -140,6 +142,7 @@ enum ClaudeLogParser {
     private static func adopt(_ json: [String: Any], into state: inout ClaudeLogState) {
         if let session = json["sessionId"] as? String, !session.isEmpty { state.session = session }
         if let cwd = json["cwd"] as? String, !cwd.isEmpty { state.project = projectName(cwd) }
+        if let entrypoint = json["entrypoint"] as? String, !entrypoint.isEmpty { state.entrypoint = entrypoint }
     }
 
     static func projectName(_ cwd: String) -> String {

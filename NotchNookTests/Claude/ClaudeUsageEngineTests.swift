@@ -134,4 +134,75 @@ final class ClaudeUsageEngineTests: XCTestCase {
         try FileManager.default.setAttributes([.modificationDate: ago(5 * 86_400)], ofItemAtPath: old.path)
         XCTAssertEqual(snapshot(ClaudeUsageEngine(home: home).poll(now: now), "Work")?.today.requests, 0)
     }
+
+    // MARK: Which account wrote a session
+
+    /// The desktop app's Code tab signs in with the desktop app's account but logs to
+    /// `~/.claude`, the same folder the work CLI uses.
+    private func writePlanHistory(org: String) {
+        let sampleMs = Int(ago(60).timeIntervalSince1970 * 1_000)
+        let history = #"{"version":2,"samples":[{"t":\#(sampleMs),"org":"\#(org)","u":{"fh":21,"sd":13}}]}"#
+        let planURL = ClaudePlanLimits.historyURL(home: home)
+        try! FileManager.default.createDirectory(at: planURL.deletingLastPathComponent(), withIntermediateDirectories: true)
+        try! Data(history.utf8).write(to: planURL)
+    }
+
+    func testDesktopAppSessionsBelongToTheDesktopAppsAccountNotTheFoldersProfile() {
+        ClaudeFixtures.writeAccountJSON(org: "org-work", to: log(".claude.json"))
+        ClaudeFixtures.writeAccountJSON(org: "org-personal", to: log(".claude-personal/.claude.json"))
+        makeProjects(".claude-personal")
+        writePlanHistory(org: "org-personal")   // the desktop app's account
+        // Both sessions are in ~/.claude; only the entrypoint tells them apart.
+        ClaudeFixtures.append([ClaudeFixtures.prompt(at: ago(30), session: "desk", cwd: "/Users/x/Sites/nootch-oc", entrypoint: "claude-desktop"),
+                               ClaudeFixtures.assistant(at: ago(20), stop: "tool_use", session: "desk", messageID: "d1", input: 111,
+                                                        cwd: "/Users/x/Sites/nootch-oc", entrypoint: "claude-desktop")],
+                              to: log(".claude/projects/-Users-x-Sites-nootch-oc/desk.jsonl"))
+        ClaudeFixtures.append([ClaudeFixtures.prompt(at: ago(25), session: "term", cwd: "/Users/x/Sites/anywhere", entrypoint: "cli"),
+                               ClaudeFixtures.assistant(at: ago(15), stop: "end_turn", session: "term", messageID: "t1", input: 222, entrypoint: "cli")],
+                              to: log(".claude/projects/-Users-x-Sites-anywhere/term.jsonl"))
+
+        let output = ClaudeUsageEngine(home: home).poll(now: now)
+
+        XCTAssertEqual(output.profiles.map(\.label), ["Work", "Personal"], "the desktop account maps onto the profile with the same organization")
+        XCTAssertEqual(snapshot(output, "Personal")?.live.map(\.project), ["nootch-oc"])
+        XCTAssertEqual(snapshot(output, "Personal")?.today.tokens.input, 111)
+        XCTAssertEqual(snapshot(output, "Work")?.live, [])
+        XCTAssertEqual(snapshot(output, "Work")?.today.tokens.input, 222)
+        XCTAssertEqual(snapshot(output, "Personal")?.limits.count, 2)
+    }
+
+    func testFinishedDesktopTurnIsReportedForTheDesktopAccount() {
+        ClaudeFixtures.writeAccountJSON(org: "org-work", to: log(".claude.json"))
+        ClaudeFixtures.writeAccountJSON(org: "org-personal", to: log(".claude-personal/.claude.json"))
+        makeProjects(".claude")
+        makeProjects(".claude-personal")
+        writePlanHistory(org: "org-personal")
+        let engine = ClaudeUsageEngine(home: home)
+        _ = engine.poll(now: ago(30))
+        let desk = log(".claude/projects/-Users-x-Sites-nootch-oc/desk.jsonl")
+        ClaudeFixtures.append([ClaudeFixtures.prompt(at: ago(20), session: "desk", entrypoint: "claude-desktop")], to: desk)
+        ClaudeFixtures.append([ClaudeFixtures.assistant(at: ago(5), stop: "end_turn", session: "desk", entrypoint: "claude-desktop")], to: desk)
+        let output = engine.poll(now: ago(4))
+        XCTAssertEqual(output.finished.count, 1)
+        let personal = snapshot(output, "Personal")
+        XCTAssertEqual(output.finished.first?.profileID, personal?.id)
+    }
+
+    func testDesktopSessionsWithNoMatchingProfileGetTheirOwnClaudeAppProfile() {
+        makeProjects(".claude")
+        ClaudeFixtures.writeAccountJSON(org: "org-work", to: log(".claude.json"))
+        writePlanHistory(org: "org-elsewhere")
+        ClaudeFixtures.append([ClaudeFixtures.prompt(at: ago(30), session: "desk", entrypoint: "claude-desktop"),
+                               ClaudeFixtures.assistant(at: ago(20), stop: "end_turn", session: "desk", messageID: "d1", input: 5, entrypoint: "claude-desktop")], to: log(work))
+        let output = ClaudeUsageEngine(home: home).poll(now: now)
+        XCTAssertEqual(output.profiles.map(\.label), ["Work", "Claude app"])
+        XCTAssertEqual(snapshot(output, "Claude app")?.today.tokens.input, 5)
+        XCTAssertEqual(snapshot(output, "Claude app")?.limits.count, 2, "the desktop app's own account owns its limits")
+        XCTAssertEqual(snapshot(output, "Work")?.today.requests, 0)
+    }
+
+    func testNoDesktopSessionsMeansNoExtraProfile() {
+        ClaudeFixtures.append([ClaudeFixtures.prompt(at: ago(30)), ClaudeFixtures.assistant(at: ago(20), stop: "end_turn")], to: log(work))
+        XCTAssertEqual(ClaudeUsageEngine(home: home).poll(now: now).profiles.map(\.label), ["Work"])
+    }
 }
