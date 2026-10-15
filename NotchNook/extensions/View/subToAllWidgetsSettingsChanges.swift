@@ -19,6 +19,7 @@ struct SubToAllWidgetsSettingsChangesModifier: ViewModifier {
     @Environment(\.quickAppsWidgetSettings) private var quickAppsWidgetSettings
     @Environment(\.todoListWidgetSettings) private var todoListWidgetSettings
     @Environment(\.timerWidgetSettings) private var timerWidgetSettings
+    @Environment(\.claudeUsageWidgetSettings) private var claudeUsageWidgetSettings
     
     func body(content: Content) -> some View {
         content
@@ -30,6 +31,7 @@ struct SubToAllWidgetsSettingsChangesModifier: ViewModifier {
             .animation(animation, value: quickAppsWidgetSettings)
             .animation(animation, value: todoListWidgetSettings)
             .animation(animation, value: timerWidgetSettings)
+            .animation(animation, value: claudeUsageWidgetSettings)
     }
 }
 

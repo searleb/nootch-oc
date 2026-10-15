@@ -111,3 +111,16 @@ extension EnvironmentValues {
         set { self[TimerWidgetSettingsKey.self] = newValue }
     }
 }
+
+// MARK: - ClaudeUsageWidgetSettings
+
+private struct ClaudeUsageWidgetSettingsKey: EnvironmentKey {
+    static var defaultValue = ClaudeUsageWidgetSettings()
+}
+
+extension EnvironmentValues {
+    var claudeUsageWidgetSettings: ClaudeUsageWidgetSettings {
+        get { self[ClaudeUsageWidgetSettingsKey.self] }
+        set { self[ClaudeUsageWidgetSettingsKey.self] = newValue }
+    }
+}

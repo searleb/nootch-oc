@@ -38,4 +38,5 @@ extension Defaults.Keys {
     static let todoListWidgetSettings = Key<TodoListWidgetSettings>("todoListWidgetSettings", default: .init())
     static let quickAppsWidgetSettings = Key<QuickAppsWidgetSettings>("quickAppsWidgetSettings", default: .init())
     static let timerWidgetSettings = Key<TimerWidgetSettings>("timerWidgetSettings", default: .init())
+    static let claudeUsageWidgetSettings = Key<ClaudeUsageWidgetSettings>("claudeUsageWidgetSettings", default: .init())
 }

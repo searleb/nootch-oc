@@ -18,6 +18,7 @@ enum NookWidget: String, MetaInfo, Codable, CaseIterable {
     case quickApps
     case todoList
     case timer
+    case claudeUsage
     
     var id: String { self.rawValue }
     
@@ -49,6 +50,7 @@ enum NookWidget: String, MetaInfo, Codable, CaseIterable {
             case .quickApps: "circle.grid.2x2.fill"
             case .todoList: "checklist"
             case .timer: "timer"
+            case .claudeUsage: "sparkle"
         }
     }
     
@@ -62,6 +64,7 @@ enum NookWidget: String, MetaInfo, Codable, CaseIterable {
             case .quickApps: String(localized: "Quick Apps")
             case .todoList: String(localized: "To-dos")
             case .timer: String(localized: "Timer")
+            case .claudeUsage: String(localized: "Claude Usage")
         }
     }
     
@@ -75,6 +78,7 @@ enum NookWidget: String, MetaInfo, Codable, CaseIterable {
             case .quickApps: Defaults[.quickAppsWidgetSettings]
             case .todoList: Defaults[.todoListWidgetSettings]
             case .timer: Defaults[.timerWidgetSettings]
+            case .claudeUsage: Defaults[.claudeUsageWidgetSettings]
         }
     }
     
@@ -88,6 +92,7 @@ enum NookWidget: String, MetaInfo, Codable, CaseIterable {
             case .notes: .variable
             case .todoList: .variable
             case .timer: .variable
+            case .claudeUsage: .variable
         }
     }
     
