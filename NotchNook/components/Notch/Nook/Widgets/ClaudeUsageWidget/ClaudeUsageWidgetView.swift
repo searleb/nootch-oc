@@ -34,30 +34,46 @@ struct ClaudeUsageWidgetView: View {
     private var visibleProfiles: [ClaudeProfileSnapshot] { store.profiles.filter(\.hasActivity) }
 
     var body: some View {
+        ClaudeUsageWidgetContent(isLoaded: store.isLoaded, profiles: visibleProfiles)
+            .padding(.top, insets.top)
+            .padding(.bottom, insets.bottom)
+            .padding(.leading, insets.leading)
+            .padding(.trailing, insets.trailing)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+            .paddingDependingOnArrPos(arrayPosition: arrayPosition, padding: internalPadding)
+            // Width from the grid; height fills the band the Nook gives us.
+            .frame(width: prefs.size.width.screenPoints, alignment: .leading)
+            .frame(maxHeight: .infinity)
+    }
+}
+
+/// What the widget draws inside its insets: a spinner, an empty state, or one block per profile.
+struct ClaudeUsageWidgetContent: View {
+    var isLoaded: Bool
+    /// Profiles with something to show.
+    var profiles: [ClaudeProfileSnapshot]
+
+    /// A `ScrollView` clips exactly at its bounds, so content flush against the left edge
+    /// (the sparkle, the meter bars, the first glyph of each line) loses its first pixel or two.
+    static let clipGutter: CGFloat = 2
+
+    var body: some View {
         Group {
-            if !store.isLoaded {
+            if !isLoaded {
                 ProgressView().controlSize(.small)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
-            } else if visibleProfiles.isEmpty {
+            } else if profiles.isEmpty {
                 emptyState
             } else {
                 ScrollView(.vertical, showsIndicators: false) {
                     VStack(alignment: .leading, spacing: 9) {
-                        ForEach(visibleProfiles) { ClaudeProfileBlock(profile: $0) }
+                        ForEach(profiles) { ClaudeProfileBlock(profile: $0) }
                     }
+                    .padding(.horizontal, Self.clipGutter)
                     .frame(maxWidth: .infinity, alignment: .leading)
                 }
             }
         }
-        .padding(.top, insets.top)
-        .padding(.bottom, insets.bottom)
-        .padding(.leading, insets.leading)
-        .padding(.trailing, insets.trailing)
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-        .paddingDependingOnArrPos(arrayPosition: arrayPosition, padding: internalPadding)
-        // Width from the grid; height fills the band the Nook gives us.
-        .frame(width: prefs.size.width.screenPoints, alignment: .leading)
-        .frame(maxHeight: .infinity)
     }
 
     private var emptyState: some View {
