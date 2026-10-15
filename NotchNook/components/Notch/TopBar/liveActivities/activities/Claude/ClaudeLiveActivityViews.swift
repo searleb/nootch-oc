@@ -98,3 +98,35 @@ struct ClaudeFinishedDurationView: View {
         }
     }
 }
+
+#Preview("Claude live activity wings") {
+    func wing<Content: View>(@ViewBuilder _ content: () -> Content) -> some View {
+        content().frame(width: TopBarView.liveActionWidth, height: TopBarView.maxHeight).background(Color.black)
+    }
+    return VStack(alignment: .leading, spacing: 16) {
+        HStack(spacing: 40) {   // working: clock left, animated mark right
+            wing {
+                Text(verbatim: "2:14")
+                    .font(.system(size: 11, weight: .medium).monospacedDigit())
+                    .foregroundStyle(ClaudeStyle.orange)
+            }
+            wing { ClaudeWorkingIconView() }
+        }
+        HStack(spacing: 40) {   // finished: check left, duration right
+            wing {
+                Image(systemName: "checkmark.circle.fill")
+                    .font(.system(size: 13))
+                    .foregroundStyle(ClaudeStyle.orange)
+            }
+            wing {
+                Text(verbatim: "2m 14s")
+                    .font(.system(size: 11, weight: .semibold))
+                    .foregroundStyle(.white.opacity(0.85))
+                    .minimumScaleFactor(0.55)
+            }
+        }
+    }
+    .padding(20)
+    .background(Color(white: 0.15))
+    .preferredColorScheme(.dark)
+}

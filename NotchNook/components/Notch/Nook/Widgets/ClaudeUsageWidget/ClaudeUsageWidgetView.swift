@@ -175,3 +175,28 @@ private struct ClaudeLimitMeter: View {
         .frame(maxWidth: .infinity)
     }
 }
+
+#Preview("Claude widget content") {
+    let now = Date()
+    let personal = ClaudeProfileSnapshot(
+        id: "p", label: "Personal",
+        live: [ClaudeLiveSession(id: "p|s", profileID: "p", profileLabel: "Personal", project: "nootch-oc",
+                                 started: now.addingTimeInterval(-134), lastActivity: now)],
+        today: ClaudeUsageSummary(tokens: ClaudeTokens(input: 120_000, cacheWrite: 400_000, cacheRead: 12_000_000, output: 90_000),
+                                  cost: 6.53, hasUnpriced: false, requests: 52),
+        limits: [ClaudeLimitWindow(kind: .session, usedPercent: 72, resetsAt: now.addingTimeInterval(3 * 3600 + 12 * 60), isEstimate: true),
+                 ClaudeLimitWindow(kind: .weekly, usedPercent: 13, resetsAt: now.addingTimeInterval(5 * 86_400), isEstimate: true)])
+    let work = ClaudeProfileSnapshot(
+        id: "w", label: "Work", live: [],
+        today: ClaudeUsageSummary(tokens: ClaudeTokens(input: 5_000, cacheWrite: 20_000, cacheRead: 300_000, output: 8_000),
+                                  cost: 0.42, hasUnpriced: true, requests: 7),
+        limits: [])
+    VStack(alignment: .leading, spacing: 9) {
+        ClaudeProfileBlock(profile: personal)
+        ClaudeProfileBlock(profile: work)
+    }
+    .padding(12)
+    .frame(width: 200, alignment: .leading)
+    .background(Color.black)
+    .preferredColorScheme(.dark)
+}
