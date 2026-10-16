@@ -36,6 +36,8 @@ struct NookView: View {
                         TodoWidgetView(arrayPosition: arrPos, internalPadding: nookSettings.widgetsPadding)
                     case .timer:
                         TimerWidgetView(arrayPosition: arrPos, internalPadding: nookSettings.widgetsPadding)
+                    case .claudeUsage:
+                        ClaudeUsageWidgetView(arrayPosition: arrPos, internalPadding: nookSettings.widgetsPadding)
                     default: EmptyView()
                     }
                 }

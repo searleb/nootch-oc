@@ -20,6 +20,7 @@ extension NotchView {
         @Environment(\.todoListWidgetSettings) internal var todoListWidgetSettings
         @Environment(\.quickAppsWidgetSettings) internal var quickAppsWidgetSettings
         @Environment(\.timerWidgetSettings) internal var timerWidgetSettings
+        @Environment(\.claudeUsageWidgetSettings) internal var claudeUsageWidgetSettings
         
         @Default(.nookSettings) internal var nookSettings
         @Namespace internal var ns
@@ -39,6 +40,7 @@ extension NotchView {
                     case .shortcuts: shortcutsWidgetSettings.size.width
                     case .todoList: todoListWidgetSettings.size.width
                     case .timer: timerWidgetSettings.size.width
+                    case .claudeUsage: claudeUsageWidgetSettings.size.width
                 }
                 return $0 + adding
             }

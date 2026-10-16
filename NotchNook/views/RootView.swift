@@ -45,6 +45,7 @@ struct RootView: View {
     @Default(.todoListWidgetSettings) private var todoListWidgetSettings
     @Default(.quickAppsWidgetSettings) private var quickAppsWidgetSettings
     @Default(.timerWidgetSettings) private var timerWidgetSettings
+    @Default(.claudeUsageWidgetSettings) private var claudeUsageWidgetSettings
     
     mutating func updateForScreen(displayKitId: UUID, screenSize: CGSize, notchSize: CGSize, notchNook: NotchNookState) {
         self.displayKitId = displayKitId
@@ -109,5 +110,6 @@ struct RootView: View {
             .environment(\.todoListWidgetSettings, todoListWidgetSettings)
             .environment(\.quickAppsWidgetSettings, quickAppsWidgetSettings)
             .environment(\.timerWidgetSettings, timerWidgetSettings)
+            .environment(\.claudeUsageWidgetSettings, claudeUsageWidgetSettings)
     }
 }

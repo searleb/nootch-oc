@@ -33,7 +33,7 @@ struct LiveActivitiesCustomizeSettingsTabView: View {
 //                    BatteryLiveActivitySettingsView()
                 case .batteryVisualizer:
                     BatteryLiveActivitySettingsView()
-                case .bluetoothDevice, .updateAvailable, .timerExpired:
+                case .bluetoothDevice, .updateAvailable, .timerExpired, .claudeWorking, .claudeFinished:
                     NoOptionsSettingsView()
             }
         }
