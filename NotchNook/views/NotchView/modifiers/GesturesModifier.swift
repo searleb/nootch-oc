@@ -70,7 +70,13 @@ extension NotchView {
                 }
                 // (key claim happens unconditionally on hover-enter above)
             } else {
-                if (generalSettings.preventUnhoverCloseWhenTyping && isEditingText) || notchNook.locked { return }
+                // The pointer has left, so drop the hover state even when the Nook stays open
+                // below: an outside click can later close it without going through closeNotch,
+                // and the closed notch would keep its hover size (a few points too big).
+                if (generalSettings.preventUnhoverCloseWhenTyping && isEditingText) || notchNook.locked {
+                    withAnimation(.smooth(duration: 0.4)) { state.hovering = false }
+                    return
+                }
                 closeNotch(false, true)
             }
         }
