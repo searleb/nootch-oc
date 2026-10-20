@@ -18,6 +18,9 @@ struct TodoListWidgetSettingsView: View {
             } content: {
                 SliderPlus(value: $todoListWidgetSettings.size.width.double, range: 3...16)
 
+                Text("Tasks are kept in the \"NotchNook\" list in Reminders, so they sync to your other devices.")
+                    .optionDescription(280)
+
                 Toggle("Show completed tasks", isOn: $todoListWidgetSettings.showCompleted)
                     .padding(.vertical)
 

@@ -23,6 +23,8 @@
 	<string>NotchNook needs Calendar access to power the calendar widget and LA.</string>
 	<key>NSCalendarsWriteOnlyAccessUsageDescription</key>
 	<string>NotchNook needs Calendar access to power the calendar widget and LA.</string>
+	<key>NSRemindersFullAccessUsageDescription</key>
+	<string>NotchNook keeps the to-do widget's tasks in a list in Reminders.</string>
 	<key>SUEnableAutomaticChecks</key>
 	<true/>
 	<key>SUFeedURL</key>
