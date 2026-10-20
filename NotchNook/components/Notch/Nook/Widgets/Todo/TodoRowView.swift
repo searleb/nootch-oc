@@ -4,21 +4,19 @@
 //
 
 import SwiftUI
-import SwiftData
 
 struct TodoRowView: View {
-    var item: TodoItem
+    var item: TodoTask
+    var onToggleCompleted: () -> Void
+    var onTogglePriority: () -> Void
     var onDelete: () -> Void
-
-    @Environment(\.modelContext) private var modelContext
 
     var body: some View {
         HStack(spacing: 6) {
             // Checkbox
             Button {
                 withAnimation(.spring(response: 0.25, dampingFraction: 0.7)) {
-                    item.isCompleted.toggle()
-                    try? modelContext.save()
+                    onToggleCompleted()
                 }
             } label: {
                 Image(systemName: item.isCompleted ? "checkmark.circle.fill" : "circle")
@@ -39,8 +37,7 @@ struct TodoRowView: View {
             // Priority star
             Button {
                 withAnimation(.spring(response: 0.2, dampingFraction: 0.65)) {
-                    item.isPriority.toggle()
-                    try? modelContext.save()
+                    onTogglePriority()
                 }
             } label: {
                 Image(systemName: item.isPriority ? "star.fill" : "star")
